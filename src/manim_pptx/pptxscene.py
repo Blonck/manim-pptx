@@ -96,6 +96,8 @@ class PPTXScene(Scene):
 
         #     # slide.shapes.add_movie(src_file, 0, 0, prs.slide_width, prs.slide_height)
 
+        url_schema = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
+
         for tslidei, tslide in enumerate(self.slides):
             slide_movie_files = self.renderer.file_writer.partial_movie_files[tslide["start"]:tslide["end"]]
 
@@ -123,7 +125,7 @@ class PPTXScene(Scene):
                 ))
 
             def addAutoNext():
-                transition = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}transition", {
+                transition = etree.Element(url_schema + "transition", {
                     "spd":"slow",
                     "advTm":"0",
                 })
@@ -137,7 +139,7 @@ class PPTXScene(Scene):
                     addAutoNext()
                     outerchildTnLst = slide.element[3][0][0][0][0]
 
-                seq = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}seq", concurrent="1", nextAc="seek")
+                seq = etree.Element(url_schema + "seq", concurrent="1", nextAc="seek")
                 outerchildTnLst.insert(0,seq)
 
 
@@ -148,22 +150,22 @@ class PPTXScene(Scene):
                 getcTnIDCounter.cTnIDCounter = 1
 
                 def addCTn():
-                    innercTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), dur="indefinite", nodeType="mainSeq")
-                    childTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
-                    par1 = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
-                    cTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), fill="hold")
+                    innercTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), dur="indefinite", nodeType="mainSeq")
+                    childTnLst = etree.Element(url_schema + "childTnLst")
+                    par1 = etree.Element(url_schema + "par")
+                    cTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), fill="hold")
                     if tslide["type"] == "loop":
                         cTn.attrib["dur"] = str(reduce(lambda x, y: x + y, [p["dur"] for p in pics]))
                         cTn.attrib["repeatCount"] = "indefinite"
-                    stCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                    cond1 = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay="indefinite")
-                    cond2 = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", evt="onBegin", delay="0")
-                    cond2tn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}tn", val="2")
+                    stCondLst = etree.Element(url_schema + "stCondLst")
+                    cond1 = etree.Element(url_schema + "cond", delay="indefinite")
+                    cond2 = etree.Element(url_schema + "cond", evt="onBegin", delay="0")
+                    cond2tn = etree.Element(url_schema + "tn", val="2")
                     cond2.append(cond2tn)
                     stCondLst.append(cond1)
                     stCondLst.append(cond2)
                     cTn.append(stCondLst)
-                    childTnLst2 = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
+                    childTnLst2 = etree.Element(url_schema + "childTnLst")
                     cTn.append(childTnLst2)
 
                     par1.append(cTn)
@@ -175,20 +177,20 @@ class PPTXScene(Scene):
                 childTnLst = addCTn()
 
                 def addPrevCondLst():
-                    prevCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}prevCondLst")
-                    cond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", evt="onPrev", delay="0")
-                    tgtEl = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}tgtEl")
-                    sldTgt = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}sldTgt")
+                    prevCondLst = etree.Element(url_schema + "prevCondLst")
+                    cond = etree.Element(url_schema + "cond", evt="onPrev", delay="0")
+                    tgtEl = etree.Element(url_schema + "tgtEl")
+                    sldTgt = etree.Element(url_schema + "sldTgt")
                     tgtEl.append(sldTgt)
                     cond.append(tgtEl)
                     prevCondLst.append(cond)
                     seq.append(prevCondLst)
 
                 def addNextCondLst():
-                    nextCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}nextCondLst")
-                    cond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", evt="onNext", delay="0")
-                    tgtEl = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}tgtEl")
-                    sldTgt = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}sldTgt")
+                    nextCondLst = etree.Element(url_schema + "nextCondLst")
+                    cond = etree.Element(url_schema + "cond", evt="onNext", delay="0")
+                    tgtEl = etree.Element(url_schema + "tgtEl")
+                    sldTgt = etree.Element(url_schema + "sldTgt")
                     tgtEl.append(sldTgt)
                     cond.append(tgtEl)
                     nextCondLst.append(cond)
@@ -200,46 +202,46 @@ class PPTXScene(Scene):
                 currentdelay = 0
                 for i, pic in enumerate(pics):
                     def addToFrontEffect():
-                        par = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
-                        cTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), fill="hold")
-                        stCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        cond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay=str(currentdelay))
+                        par = etree.Element(url_schema + "par")
+                        cTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), fill="hold")
+                        stCondLst = etree.Element(url_schema + "stCondLst")
+                        cond = etree.Element(url_schema + "cond", delay=str(currentdelay))
                         stCondLst.append(cond)
                         cTn.append(stCondLst)
 
-                        innerchildTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
-                        innerPar = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
-                        innercTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), presetID="1", presetClass="entr", presetSubtype="0", fill="hold", nodeType="withEffect" if i == 0 else "afterEffect")
-                        innerstCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        innercond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay="0")
+                        innerchildTnLst = etree.Element(url_schema + "childTnLst")
+                        innerPar = etree.Element(url_schema + "par")
+                        innercTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), presetID="1", presetClass="entr", presetSubtype="0", fill="hold", nodeType="withEffect" if i == 0 else "afterEffect")
+                        innerstCondLst = etree.Element(url_schema + "stCondLst")
+                        innercond = etree.Element(url_schema + "cond", delay="0")
                         innerstCondLst.append(innercond)
                         innercTn.append(innerstCondLst)
 
-                        innerInnerChildTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
+                        innerInnerChildTnLst = etree.Element(url_schema + "childTnLst")
                         innercTn.append(innerInnerChildTnLst)
 
-                        set = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}set")
-                        cBhvr = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cBhvr")
+                        set = etree.Element(url_schema + "set")
+                        cBhvr = etree.Element(url_schema + "cBhvr")
 
-                        cBhvrcTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), dur="1", fill="hold")
-                        cBhvrcTnstCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        cBhvrcTncond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay="0")
+                        cBhvrcTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), dur="1", fill="hold")
+                        cBhvrcTnstCondLst = etree.Element(url_schema + "stCondLst")
+                        cBhvrcTncond = etree.Element(url_schema + "cond", delay="0")
                         cBhvrcTnstCondLst.append(cBhvrcTncond)
                         cBhvrcTn.append(cBhvrcTnstCondLst)
                         cBhvr.append(cBhvrcTn)
-                        tgtEl = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}tgtEl")
-                        spTgt = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}spTgt", spid=str(pic["id"]))
+                        tgtEl = etree.Element(url_schema + "tgtEl")
+                        spTgt = etree.Element(url_schema + "spTgt", spid=str(pic["id"]))
                         tgtEl.append(spTgt)
                         cBhvr.append(tgtEl)
-                        attrNameLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}attrNameLst")
-                        attrName = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}attrName")
+                        attrNameLst = etree.Element(url_schema + "attrNameLst")
+                        attrName = etree.Element(url_schema + "attrName")
                         attrName.text = "style.visibility"
                         attrNameLst.append(attrName)
                         cBhvr.append(attrNameLst)
 
                         set.append(cBhvr)
-                        to = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}to")
-                        strVal = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}strVal", val="visible")
+                        to = etree.Element(url_schema + "to")
+                        strVal = etree.Element(url_schema + "strVal", val="visible")
                         to.append(strVal)
                         set.append(to)
 
@@ -254,61 +256,61 @@ class PPTXScene(Scene):
                         childTnLst.append(par)
 
                     def addToBackEffect():
-                        par = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
-                        cTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), fill="hold")
-                        stCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        cond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay=str(currentdelay))
+                        par = etree.Element(url_schema + "par")
+                        cTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), fill="hold")
+                        stCondLst = etree.Element(url_schema + "stCondLst")
+                        cond = etree.Element(url_schema + "cond", delay=str(currentdelay))
                         stCondLst.append(cond)
                         cTn.append(stCondLst)
 
-                        innerchildTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
-                        innerPar = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
-                        innercTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), presetID="1", presetClass="exit", presetSubtype="0", fill="hold", nodeType="afterEffect")
-                        innerstCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        innercond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay="0")
+                        innerchildTnLst = etree.Element(url_schema + "childTnLst")
+                        innerPar = etree.Element(url_schema + "par")
+                        innercTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), presetID="1", presetClass="exit", presetSubtype="0", fill="hold", nodeType="afterEffect")
+                        innerstCondLst = etree.Element(url_schema + "stCondLst")
+                        innercond = etree.Element(url_schema + "cond", delay="0")
                         innerstCondLst.append(innercond)
                         innercTn.append(innerstCondLst)
 
-                        innerInnerChildTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
+                        innerInnerChildTnLst = etree.Element(url_schema + "childTnLst")
                         innercTn.append(innerInnerChildTnLst)
 
-                        set = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}set")
-                        cBhvr = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cBhvr")
+                        set = etree.Element(url_schema + "set")
+                        cBhvr = etree.Element(url_schema + "cBhvr")
 
-                        cBhvrcTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), dur="1", fill="hold")
-                        cBhvrcTnstCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        cBhvrcTncond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay="0")
+                        cBhvrcTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), dur="1", fill="hold")
+                        cBhvrcTnstCondLst = etree.Element(url_schema + "stCondLst")
+                        cBhvrcTncond = etree.Element(url_schema + "cond", delay="0")
                         cBhvrcTnstCondLst.append(cBhvrcTncond)
                         cBhvrcTn.append(cBhvrcTnstCondLst)
                         cBhvr.append(cBhvrcTn)
-                        tgtEl = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}tgtEl")
-                        spTgt = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}spTgt", spid=str(pic["id"]))
+                        tgtEl = etree.Element(url_schema + "tgtEl")
+                        spTgt = etree.Element(url_schema + "spTgt", spid=str(pic["id"]))
                         tgtEl.append(spTgt)
                         cBhvr.append(tgtEl)
-                        attrNameLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}attrNameLst")
-                        attrName = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}attrName")
+                        attrNameLst = etree.Element(url_schema + "attrNameLst")
+                        attrName = etree.Element(url_schema + "attrName")
                         attrName.text = "style.visibility"
                         attrNameLst.append(attrName)
                         cBhvr.append(attrNameLst)
 
                         set.append(cBhvr)
-                        to = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}to")
-                        strVal = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}strVal", val="hidden")
+                        to = etree.Element(url_schema + "to")
+                        strVal = etree.Element(url_schema + "strVal", val="hidden")
                         to.append(strVal)
                         set.append(to)
 
                         innerInnerChildTnLst.append(set)
 
-                        cmd = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cmd", type="call", cmd="stop")
-                        cBhvr = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cBhvr")
-                        cBhvrcTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), dur="1", fill="hold")
-                        cBhvrcTnstCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        cBhvrcTnstCondLstCond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay="0")
+                        cmd = etree.Element(url_schema + "cmd", type="call", cmd="stop")
+                        cBhvr = etree.Element(url_schema + "cBhvr")
+                        cBhvrcTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), dur="1", fill="hold")
+                        cBhvrcTnstCondLst = etree.Element(url_schema + "stCondLst")
+                        cBhvrcTnstCondLstCond = etree.Element(url_schema + "cond", delay="0")
                         cBhvrcTnstCondLst.append(cBhvrcTnstCondLstCond)
                         cBhvrcTn.append(cBhvrcTnstCondLst)
                         cBhvr.append(cBhvrcTn)
-                        tgtEl = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}tgtEl")
-                        spTgt = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}spTgt", spid=str(pic["id"]))
+                        tgtEl = etree.Element(url_schema + "tgtEl")
+                        spTgt = etree.Element(url_schema + "spTgt", spid=str(pic["id"]))
                         tgtEl.append(spTgt)
                         cBhvr.append(tgtEl)
                         cmd.append(cBhvr)
@@ -324,30 +326,30 @@ class PPTXScene(Scene):
                         childTnLst.append(par)
 
                     def playEffect():
-                        par = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
-                        cTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), fill="hold")
-                        stCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        cond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay=str(currentdelay))
+                        par = etree.Element(url_schema + "par")
+                        cTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), fill="hold")
+                        stCondLst = etree.Element(url_schema + "stCondLst")
+                        cond = etree.Element(url_schema + "cond", delay=str(currentdelay))
                         stCondLst.append(cond)
                         cTn.append(stCondLst)
 
-                        innerchildTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
-                        innerPar = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
-                        innercTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), presetID="1", presetClass="mediacall", presetSubtype="0", fill="hold", nodeType="afterEffect")
-                        innerstCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}stCondLst")
-                        innercond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", delay="0")
+                        innerchildTnLst = etree.Element(url_schema + "childTnLst")
+                        innerPar = etree.Element(url_schema + "par")
+                        innercTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), presetID="1", presetClass="mediacall", presetSubtype="0", fill="hold", nodeType="afterEffect")
+                        innerstCondLst = etree.Element(url_schema + "stCondLst")
+                        innercond = etree.Element(url_schema + "cond", delay="0")
                         innerstCondLst.append(innercond)
                         innercTn.append(innerstCondLst)
 
-                        innerInnerChildTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
+                        innerInnerChildTnLst = etree.Element(url_schema + "childTnLst")
                         innercTn.append(innerInnerChildTnLst)
 
-                        cmd = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cmd", type="call", cmd="playFrom(0.0)")
-                        cBhvr = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cBhvr")
-                        cBhvrcTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), dur=str(pic["dur"]), fill="hold")
+                        cmd = etree.Element(url_schema + "cmd", type="call", cmd="playFrom(0.0)")
+                        cBhvr = etree.Element(url_schema + "cBhvr")
+                        cBhvrcTn = etree.Element(url_schema + "cTn", id=str(getcTnIDCounter()), dur=str(pic["dur"]), fill="hold")
                         cBhvr.append(cBhvrcTn)
-                        tgtEl = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}tgtEl")
-                        spTgt = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}spTgt", spid=str(pic["id"]))
+                        tgtEl = etree.Element(url_schema + "tgtEl")
+                        spTgt = etree.Element(url_schema + "spTgt", spid=str(pic["id"]))
                         tgtEl.append(spTgt)
                         cBhvr.append(tgtEl)
                         cmd.append(cBhvr)
