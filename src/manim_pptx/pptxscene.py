@@ -71,7 +71,7 @@ class PPTXScene(Scene):
 
         if not os.path.exists(self.temporary_dir):
             os.mkdir(self.temporary_dir)
-        
+
         logger.info("Creating PPTX")
 
         prs = pptx.Presentation(pptx=os.path.join(os.path.split(__file__)[0], "template.pptx"))
@@ -144,6 +144,7 @@ class PPTXScene(Scene):
                 def getcTnIDCounter():
                     getcTnIDCounter.cTnIDCounter += 1
                     return getcTnIDCounter.cTnIDCounter
+
                 getcTnIDCounter.cTnIDCounter = 1
 
                 def addCTn():
@@ -182,6 +183,7 @@ class PPTXScene(Scene):
                     cond.append(tgtEl)
                     prevCondLst.append(cond)
                     seq.append(prevCondLst)
+
                 def addNextCondLst():
                     nextCondLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}nextCondLst")
                     cond = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cond", evt="onNext", delay="0")
@@ -191,10 +193,10 @@ class PPTXScene(Scene):
                     cond.append(tgtEl)
                     nextCondLst.append(cond)
                     seq.append(nextCondLst)
-                
+
                 addPrevCondLst()
                 addNextCondLst()
-                
+
                 currentdelay = 0
                 for i, pic in enumerate(pics):
                     def addToFrontEffect():
@@ -250,6 +252,7 @@ class PPTXScene(Scene):
 
                         par.append(cTn)
                         childTnLst.append(par)
+
                     def addToBackEffect():
                         par = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
                         cTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), fill="hold")
@@ -319,6 +322,7 @@ class PPTXScene(Scene):
 
                         par.append(cTn)
                         childTnLst.append(par)
+
                     def playEffect():
                         par = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}par")
                         cTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), fill="hold")
@@ -337,7 +341,7 @@ class PPTXScene(Scene):
 
                         innerInnerChildTnLst = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}childTnLst")
                         innercTn.append(innerInnerChildTnLst)
-                        
+
                         cmd = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cmd", type="call", cmd="playFrom(0.0)")
                         cBhvr = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cBhvr")
                         cBhvrcTn = etree.Element("{http://schemas.openxmlformats.org/presentationml/2006/main}cTn", id=str(getcTnIDCounter()), dur=str(pic["dur"]), fill="hold")
@@ -369,6 +373,6 @@ class PPTXScene(Scene):
 
             # if len(outerchildTnLst) > 1:
             #     seq[0][0][0][0][0][1][0].attrib["val"] = outerchildTnLst[1][0][0].attrib["id"]
-                
+
 
         prs.save(os.path.join(self.output_folder, type(self).__name__ + '.pptx'))
