@@ -7,6 +7,12 @@ import subprocess
 import lxml.etree as etree
 from functools import reduce
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
 class PPTXScene(Scene):
     def __init__(self, *args, **kwargs):
         self.output_folder = kwargs.pop("output_folder", "./pptx/")
@@ -25,12 +31,14 @@ class PPTXScene(Scene):
     def play(self, *args, **kwargs):
         super(PPTXScene, self).play(*args, **kwargs)
         self.currentAnimation += 1
+        logger.info(f"Add animation: {self.currentAnimation}")
 
     def wait(self, *args, **kwargs):
         super(PPTXScene, self).wait(*args, **kwargs)
         self.currentAnimation += 1
 
-    def endSlide(self, loop=False,autonext=False,notes=None,shownextnotes=False):
+    def endSlide(self, loop=False, autonext=False, notes=None, shownextnotes=False):
+        logger.info(f"End slide: {self.currentSlide} with animations [{self.slideStartAnimation},  {self.currentAnimation}]")
         self.slides.append(dict(
             type="loop" if loop else "slide",
             start=self.slideStartAnimation,
@@ -99,6 +107,8 @@ class PPTXScene(Scene):
         url_schema = "{http://schemas.openxmlformats.org/presentationml/2006/main}"
 
         for tslidei, tslide in enumerate(self.slides):
+            logger.debug("Add slide {tslidei} with animations [{tslide['start']}, tslide['end']]")
+
             slide_movie_files = self.renderer.file_writer.partial_movie_files[tslide["start"]:tslide["end"]]
 
             slide = prs.slides.add_slide(blank_slide_layout)
@@ -116,6 +126,7 @@ class PPTXScene(Scene):
                 thumb_file = os.path.join(self.temporary_dir, os.path.basename(src_file) + ".png")
                 self.save_video_thumb(src_file, thumb_file)
 
+                logger.debug(f"adding video {src_file}")
                 clip = slide.shapes.add_movie(src_file, 0, 0, prs.slide_width, prs.slide_height, mime_type='video/mp4', poster_frame_image=thumb_file)
 
 
