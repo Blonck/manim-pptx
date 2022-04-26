@@ -35,7 +35,7 @@ class PPTXScene(Scene):
 
     def wait(self, *args, **kwargs):
         super(PPTXScene, self).wait(*args, **kwargs)
-        self.currentAnimation += 1
+        #self.currentAnimation += 1
 
     def endSlide(self, loop=False, autonext=False, notes=None, shownextnotes=False):
         logger.info(f"End slide: {self.currentSlide} with animations [{self.slideStartAnimation},  {self.currentAnimation}]")
